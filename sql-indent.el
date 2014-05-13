@@ -59,6 +59,7 @@
 
 (require 'sql)
 (require 'thingatpt)
+(eval-when-compile (require 'cl))
 
 ;; Need the following to allow GNU Emacs 19 to compile the file.
 (require 'regexp-opt)
@@ -98,6 +99,10 @@ indented by `sql-indent-offset'."
   (let ((parse-state (syntax-ppss)))
     (or (nth 3 parse-state)             ; String
         (nth 4 parse-state))))          ; Comment
+
+(defun sql-indent-close-paren-p ()
+  "Return non-nil if current line was close-paren."
+  (string-match "^[    ])\\|^)" (thing-at-point 'line)))
 
 (defun sql-indent-get-last-line-start ()
   "Find the last non-blank line.  Return the beginning position of that line and its indentation."
@@ -175,15 +180,16 @@ Return a list containing the level change and the previous indentation."
 (defun sql-indent-line ()
   "Indent current line in an SQL statement."
   (interactive)
-  (let* ((indent-info (sql-indent-level-delta))
-         (level-delta (nth 0 indent-info))
-         (prev-indent (nth 1 indent-info))
-         (this-indent (max 0            ; Make sure the indentation is at least 0
-                           (+ prev-indent
-                              (* sql-indent-offset
-                                 (nth 0 indent-info)))))
-         )
-
+  (let* ((indent-info    (sql-indent-level-delta))
+         (level-delta    (nth 0 indent-info))
+         (prev-indent    (nth 1 indent-info))
+         (default-offset (+ prev-indent (* sql-indent-offset level-delta)))
+         (this-indent    (max 0 ; Make sure the indentation is at least 0
+                              (if (sql-indent-close-paren-p)
+                                  (case level-delta
+                                    (0 0)
+                                    (t (- default-offset sql-indent-offset)))
+                                default-offset))))
     (if sql-indent-debug
         (message "SQL Indent: level delta: %3d; prev: %3d; this: %3d"
                  level-delta prev-indent this-indent))
