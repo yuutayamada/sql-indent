@@ -175,8 +175,7 @@ Return a list containing the level change and the previous indentation."
 (defun sql-indent-line ()
   "Indent current line in an SQL statement."
   (interactive)
-  (let* ((pos (point))
-         (indent-info (sql-indent-level-delta))
+  (let* ((indent-info (sql-indent-level-delta))
          (level-delta (nth 0 indent-info))
          (prev-indent (nth 1 indent-info))
          (this-indent (max 0            ; Make sure the indentation is at least 0
