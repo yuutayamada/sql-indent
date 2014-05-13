@@ -93,7 +93,7 @@ indented by `sql-indent-offset'."
 (defvar sql-indent-debug nil
   "If non-nil, `sql-indent-line' will output debugging messages.")
 
-(defun sql-indent-is-string-or-comment ()
+(defun sql-indent-string-or-comment-p ()
   "Return nil if point is not in a comment or string; non-nil otherwise."
   (let ((parse-state (syntax-ppss)))
     (or (nth 3 parse-state)             ; String
@@ -105,7 +105,7 @@ indented by `sql-indent-offset'."
    (forward-line -1)
    (while (and (not (bobp))
                (or (looking-at "^\\s-*$")
-                   (sql-indent-is-string-or-comment))) ; Skip comments or strings
+                   (sql-indent-string-or-comment-p))) ; Skip comments or strings
      (forward-line -1))
    (list (point) (current-indentation))))
 
@@ -167,7 +167,7 @@ Return a list containing the level change and the previous indentation."
               (message "Line %3d; level %3d; indent was %3d; at %d" line level indent (point))))
         (beginning-of-line)
         (if (and (not (looking-at "^\\s-*$")) ; Leave blank lines alone
-                 (not (sql-indent-is-string-or-comment)) ; Don't mess with comments or strings
+                 (not (sql-indent-string-or-comment-p)) ; Don't mess with comments or strings
                  (/= this-indent (current-indentation))) ; Don't change the line if already ok.
             (indent-line-to this-indent))
         (end-of-line)))))
@@ -191,7 +191,7 @@ Return a list containing the level change and the previous indentation."
     (save-excursion
       (beginning-of-line)
       (if (and (not (looking-at "^\\s-*$")) ; Leave blank lines alone
-               (not (sql-indent-is-string-or-comment))  ; Don't mess with comments or strings
+               (not (sql-indent-string-or-comment-p))  ; Don't mess with comments or strings
                (/= this-indent (current-indentation))) ; Don't change the line if already ok.
           (indent-line-to this-indent)))))
 
