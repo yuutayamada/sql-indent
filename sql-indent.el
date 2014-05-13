@@ -119,9 +119,7 @@ Return a list containing the level change and the previous indentation."
     (let* ((p-line (cond ((and prev-start prev-indent)
                           (list prev-start prev-indent))
                          ((sql-indent-get-last-line-start))))
-           (curr-start (progn (beginning-of-line)
-                              (point)))
-           (paren (nth 0 (parse-partial-sexp (nth 0 p-line) curr-start))))
+           (paren (nth 0 (parse-partial-sexp (nth 0 p-line) (point-at-bol)))))
       ;; Add opening or closing parens.
       ;; If the current line starts with a keyword statement (e.g. SELECT, FROM, ...) back up one level
       ;; If the previous line starts with a keyword statement then add one level
