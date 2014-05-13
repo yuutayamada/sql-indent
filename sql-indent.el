@@ -140,7 +140,7 @@ Return a list containing the level change and the previous indentation."
   "Indent the buffer's SQL statements."
   (interactive)
   (save-excursion
-    (beginning-of-buffer)
+    (goto-char (point-min))
     (let*
         ((line 0)
          (level 0)
