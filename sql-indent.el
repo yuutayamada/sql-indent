@@ -5,7 +5,7 @@
 ;; Authors: Alex Schroeder <alex@gnu.org>
 ;;          Matt Henry <mcthenry+gnu@gmail.com>
 ;; Maintainer: Matt Henry <mcthenry+gnu@gmail.com>
-;; Version: $Id: sql-indent.el,v 1.10 2009/03/25 22:52:25 mhenry Exp $  
+;; Version: $Id: sql-indent.el,v 1.10 2009/03/25 22:52:25 mhenry Exp $
 
 ;; Keywords: languages
 ;; URL: http://www.emacswiki.org/cgi-bin/wiki.pl?SqlIndent
@@ -186,7 +186,7 @@ Return a list containing the level change and the previous indentation."
             (progn
               (setq line (1+ line))
               (message "Line %3d; level %3d; indent was %3d; at %d" line level indent (point))))
-        
+
         (beginning-of-line)
         (if (and (not (looking-at "^\\s-*$")) ; Leave blank lines alone
                  (not (sql-indent-is-string-or-comment)) ; Don't mess with comments or strings
