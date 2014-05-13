@@ -96,32 +96,23 @@ indented by `sql-indent-offset'."
   "Return nil if point is not in a comment or string; non-nil otherwise."
   (let ((parse-state (syntax-ppss)))
     (or (nth 3 parse-state)             ; String
-        (nth 4 parse-state)))           ; Comment
-  )
+        (nth 4 parse-state))))          ; Comment
 
 (defun sql-indent-get-last-line-start ()
   "Find the last non-blank line.  Return the beginning position of that line and its indentation."
-
- (save-excursion
+  (save-excursion
    (forward-line -1)
-
    (while (and (not (bobp))
-               (or
-                (looking-at "^\\s-*$")
-                (sql-indent-is-string-or-comment)) ; Skip comments or strings
-               )
-
+               (or (looking-at "^\\s-*$")
+                   (sql-indent-is-string-or-comment))) ; Skip comments or strings
      (forward-line -1))
-   (list (point) (current-indentation))
-   )
- )
+   (list (point) (current-indentation))))
 
 (defun sql-indent-level-delta (&optional prev-start prev-indent)
   "Calculate the change in level from the previous non-blank line.
 Given the optional parameter `PREV-START' and `PREV-INDENT', assume that to be
 the previous non-blank line.
 Return a list containing the level change and the previous indentation."
-
   (save-excursion
     ;; Go back to the previous non-blank line
     (let* ((p-line (cond ((and prev-start prev-indent)
@@ -130,11 +121,9 @@ Return a list containing the level change and the previous indentation."
            (curr-start (progn (beginning-of-line)
                               (point)))
            (paren (nth 0 (parse-partial-sexp (nth 0 p-line) curr-start))))
-
       ;; Add opening or closing parens.
       ;; If the current line starts with a keyword statement (e.g. SELECT, FROM, ...) back up one level
       ;; If the previous line starts with a keyword statement then add one level
-
       (list
        (+ paren
           (if (progn (goto-char (nth 0 p-line))
@@ -144,12 +133,8 @@ Return a list containing the level change and the previous indentation."
           (if (progn (goto-char curr-start)
                      (looking-at sql-indent-first-column-regexp))
               -1
-            0)
-          )
-       (nth 1 p-line))
-      )
-    )
-  )
+            0))
+       (nth 1 p-line)))))
 
 (defun sql-indent-buffer ()
   "Indent the buffer's SQL statements."
@@ -165,41 +150,28 @@ Return a list containing the level change and the previous indentation."
                    (current-indentation)))
          (this-indent 0)
          (vals '()))
-
       (while (/= (point) (point-max))
         (forward-line)
-
         (setq vals
-              (sql-indent-level-delta start indent)
-              )
+              (sql-indent-level-delta start indent))
         (setq level  (nth 0 vals)
               indent (nth 1 vals))
-
         (setq this-indent
               (max 0       ; Make sure the indentation is at least to column 0
                    (* sql-indent-offset
                       (if (< level 0)
                           0
                         level))))
-
         (if sql-indent-debug
             (progn
               (setq line (1+ line))
               (message "Line %3d; level %3d; indent was %3d; at %d" line level indent (point))))
-
         (beginning-of-line)
         (if (and (not (looking-at "^\\s-*$")) ; Leave blank lines alone
                  (not (sql-indent-is-string-or-comment)) ; Don't mess with comments or strings
                  (/= this-indent (current-indentation))) ; Don't change the line if already ok.
-
-            (indent-line-to this-indent)
-          )
-
-        (end-of-line)
-        )
-      )
-    )
-  )
+            (indent-line-to this-indent))
+        (end-of-line)))))
 
 (defun sql-indent-line ()
   "Indent current line in an SQL statement."
@@ -217,18 +189,12 @@ Return a list containing the level change and the previous indentation."
     (if sql-indent-debug
         (message "SQL Indent: level delta: %3d; prev: %3d; this: %3d"
                  level-delta prev-indent this-indent))
-
     (save-excursion
-
       (beginning-of-line)
-
       (if (and (not (looking-at "^\\s-*$")) ; Leave blank lines alone
                (not (sql-indent-is-string-or-comment))  ; Don't mess with comments or strings
                (/= this-indent (current-indentation))) ; Don't change the line if already ok.
-          (indent-line-to this-indent))
-      )
-    )
-  )
+          (indent-line-to this-indent)))))
 
 (add-hook 'sql-mode-hook
           (function (lambda ()
