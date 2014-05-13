@@ -58,6 +58,7 @@
 ;;; Code:
 
 (require 'sql)
+(require 'thingatpt)
 
 ;; Need the following to allow GNU Emacs 19 to compile the file.
 (require 'regexp-opt)
@@ -130,8 +131,8 @@ Return a list containing the level change and the previous indentation."
                      (looking-at sql-indent-first-column-regexp))
               1
             0)
-          (if (progn (goto-char curr-start)
-                     (looking-at sql-indent-first-column-regexp))
+          (if (string-match (thing-at-point 'line)
+                            sql-indent-first-column-regexp)
               -1
             0))
        (nth 1 p-line)))))
